@@ -1,5 +1,20 @@
 local M = {}
 
+function set(list)
+	local set = {}
+	for _, val in ipairs(list) do
+		set[val] = true
+	end
+	return set
+end
+
+local bufferSkipType = set({
+	"help",
+	"prompt",
+	"quickfix",
+	"terminal",
+})
+
 function M.rectify()
 	for _, buf in pairs(vim.api.nvim_list_bufs()) do
 		local name = vim.api.nvim_buf_get_name(buf)
@@ -12,12 +27,32 @@ function M.rectify()
 		-- see: https://neovim.io/doc/user/options.html#'buftype'
 		local bufferType = vim.api.nvim_get_option_value('buftype', { buf = buf })
 
-		-- TODO: make decisions based on this data
+		local closeBuffer = true
+		if bufferSkipType[bufferType] then
+			closeBuffer = false
+		end
+		if not hasFile then
+			closeBuffer = false
+		end
+		if not listed then
+			closeBuffer = false
+		end
+		if windowCount > 0 then
+			closeBuffer = false
+		end
+
+		-- TODO: ignoring modified status for now, and hopefully buffer delete just takes care of
+		-- that for us
+		-- SURVEY SAYS: KIND OF
 
 		log(string.format(
-			"%s: %s, hasFile:%s, listed:%s, windowCount:%d, modified:%s, bufferType:%s",
-			buf, name, hasFile, listed, windowCount, modified, bufferType
+			"[%s] %s -- closeBuffer:%s bufferType:%s hasFile:%s listed:%s windowCount:%s",
+			buf, name, closeBuffer, bufferType, hasFile, listed, windowCount
 		))
+
+		if closeBuffer then
+			vim.api.nvim_buf_delete(buf, {})
+		end
 	end
 end
 
@@ -34,5 +69,6 @@ end
 function log(str)
 	vim.cmd(string.format("echo \"%s\"", str))
 end
+
 
 return M
