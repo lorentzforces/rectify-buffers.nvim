@@ -45,6 +45,11 @@ function M.rectify()
 		-- that for us
 		-- SURVEY SAYS: KIND OF
 
+		-- TODO: reload buffers from disk for buffers with files which are not being closed, and which
+		-- do not have changes
+		-- TODO: eventually provide some kind of user confirmation to reload buffers like this that DO
+		-- have changes
+
 		log(string.format(
 			"[%s] %s -- closeBuffer:%s bufferType:%s hasFile:%s listed:%s windowCount:%s",
 			buf, name, closeBuffer, bufferType, hasFile, listed, windowCount
@@ -70,5 +75,9 @@ function log(str)
 	vim.cmd(string.format("echo \"%s\"", str))
 end
 
+-- trivial function to verify testing works
+function M.hello()
+	return "Hello world"
+end
 
 return M
