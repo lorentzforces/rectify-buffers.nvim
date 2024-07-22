@@ -6,11 +6,11 @@ vim.api.nvim_create_user_command(
 	{ desc = "Delete unused buffers and reload loaded ones" }
 )
 
--- REMOVEME: debugging
+local VERBOSE = true
 vim.api.nvim_create_user_command(
-	"ClassifyBuffers",
+	"RectifyBuffersDebug",
 	function()
-		require("rectify-buffers").classify_buffers()
+		require("rectify-buffers").classify_buffers(VERBOSE)
 	end,
 	{ desc = "Check what rectify-buffers would do with buffers" }
 )

@@ -19,7 +19,7 @@ T['buffers'] = new_set()
 T['buffers']['current file buffer is reloaded'] = function()
 	child.cmd('edit tests/test_file.txt')
 
-	local bufs = child.lua_get([[M.classify_buffers()]])
+	local bufs = classify_buffers()
 
 	local buf_info = expect_buffer_match_name(bufs, 'tests/test_file.txt')
 	eq('reload', buf_info.action)
@@ -29,7 +29,7 @@ T['buffers']['file buffer with no file is untouched'] = function()
 	child.cmd('edit tests/test_file.txt')
 	child.cmd('edit fake_file.txt')
 
-	local bufs = child.lua_get([[M.classify_buffers()]])
+	local bufs = classify_buffers()
 
 	local buf_info = expect_buffer_match_name(bufs, 'fake_file.txt')
 	eq('none', buf_info.action)
@@ -39,7 +39,7 @@ T['buffers']['buffer with no window is marked for closing'] = function()
 	child.cmd('edit tests/test_file.txt')
 	child.cmd('edit fake_file.txt')
 
-	local bufs = child.lua_get([[M.classify_buffers()]])
+	local bufs = classify_buffers()
 
 	local buf_info = expect_buffer_match_name(bufs, 'tests/test_file.txt')
 	eq('close', buf_info.action)
@@ -49,7 +49,7 @@ T['buffers']['file buffer with changes is still reloaded'] = function()
 	child.cmd('edit tests/test_file.txt')
 	child.cmd('%s/lark/jabberwock')
 
-	local bufs = child.lua_get([[M.classify_buffers()]])
+	local bufs = classify_buffers()
 
 	local buf_info = expect_buffer_match_name(bufs, 'tests/test_file.txt')
 	eq('reload', buf_info.action)
@@ -58,15 +58,19 @@ end
 T['buffers']['buffer types which should never be operated on are untouched'] = function()
 	child.cmd('help testing.txt')
 
-	local bufs = child.lua_get([[M.classify_buffers()]])
+	local bufs = classify_buffers()
 
 	local buf_info = expect_buffer_type(bufs, 'help')
 	eq('none', buf_info.action)
 
 	child.cmd('terminal')
-	bufs = child.lua_get([[M.classify_buffers()]])
+	bufs = classify_buffers()
 	buf_info = expect_buffer_type(bufs, 'terminal')
 	eq('none', buf_info.action)
+end
+
+function classify_buffers()
+	return child.lua_get([[M.classify_buffers(false)]])
 end
 
 function expect_buffer_match_name(buffers, name)

@@ -4,8 +4,9 @@ local ACTION_CLOSE = 'close'
 local ACTION_RELOAD = 'reload'
 local ACTION_NONE = 'none'
 
+local NOT_VERBOSE = false
 function M.rectify()
-	local buffers = M.classify_buffers()
+	local buffers = M.classify_buffers(NOT_VERBOSE)
 	for _, buffer_info in pairs(buffers) do
 		if buffer_info.action == ACTION_CLOSE then
 			vim.api.nvim_buf_delete(buffer_info.id, {})
@@ -17,7 +18,7 @@ function M.rectify()
 	end
 end
 
-function M.classify_buffers()
+function M.classify_buffers(verbose_logging)
 	local buffers = {}
 	for _, buf in pairs(vim.api.nvim_list_bufs()) do
 		local name = vim.api.nvim_buf_get_name(buf)
@@ -47,6 +48,13 @@ function M.classify_buffers()
 		end
 
 		::continue::
+
+		if verbose_logging then
+			log(string.format(
+				'[%s] \'%s\' -- action:%s type:%s has_file:%s listed:%s window_count%s',
+				buf, name, action, buffer_type, has_file, listed, window_count
+			))
+		end
 
 		local buffer_info = {}
 		buffer_info.id = buf
