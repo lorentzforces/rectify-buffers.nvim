@@ -20,3 +20,9 @@ To initialize dependencies (required for testing), run `make` in the project's r
 > Tests were built using [both the guidance and excellent framework provided by `mini.nvim`.](https://github.com/echasnovski/mini.nvim/blob/main/TESTING.md)
 
 > _Note: running with `make` is not strictly necessary. Reference the provided `Makefile` for typical development commands._
+
+## Current project to-dos (in no particular order):
+
+- Use this a bit to shake down bugs.
+- Evaluate whether the plugin should unconditionally reload/delete modified buffers like it currently does, or if it should have two commands: one which refuses to reload or delete any modified buffers, and one which will happily do it (the equivalent of passing a `--force` option to programs).
+- Add a help page for the plugin.
