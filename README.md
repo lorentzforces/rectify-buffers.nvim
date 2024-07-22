@@ -9,6 +9,8 @@ In particular, this plugin aims to address the following use cases:
 - You are editing a project managed by version control, and have just switched branches (or otherwise modified the tracked files on the filesystem).
 - You are editing a project and have opened many buffers, and you would like to prune open buffers to only the files which you currently have open in a window.
 
+This plugin creates the user command `RectifyBuffers`. Running `RectifyBuffers` will _delete_ any file-based buffers which are associated with a file which exists on disk, and _are not_ currently associated with a window. It will _reload_ any file-based buffers which are associated with a file which exists on disk, and which _are_ currently associated with a window (discarding any local changes in the buffer). Buffers which are not associated with an existing file on disk, or which are other "ephemeral" buffer types (like terminals and help) will be untouched.
+
 ## Testing
 
 Run `make test` in the project's root directory. When this is run for the first time, it will initialize all dependencies needed for testing.
