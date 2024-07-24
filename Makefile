@@ -6,27 +6,22 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 .SILENT:
 
-ifeq ($(origin .RECIPEPREFIX), undefined)
-  $(error This Make does not support .RECIPEPREFIX. Please use GNU Make 4.0 or later)
-endif
-.RECIPEPREFIX = >
-
 init: deps/.test-deps.sentinel
-> echo "==BUILD== all dependencies up to date"
+	> echo "==BUILD== all dependencies up to date"
 .PHONY: init
 
 test: deps/.test-deps.sentinel
-> nvim --headless --noplugin -u ./scripts/minimal_init.lua -c "lua MiniTest.run()" -c "exit"
-> echo ""
+	nvim --headless --noplugin -u ./scripts/minimal_init.lua -c "lua MiniTest.run()" -c "exit"
+	echo ""
 .PHONY: test
 
 deps/.test-deps.sentinel:
-> mkdir -p $(@D)
-> git clone --filter=blob:none https://github.com/echasnovski/mini.nvim $(@D)/mini.nvim
-> touch $@
-> echo "==BUILD== test dependencies installed"
+	mkdir -p $(@D)
+	git clone --filter=blob:none https://github.com/echasnovski/mini.nvim $(@D)/mini.nvim
+	touch $@
+	echo "==BUILD== test dependencies installed"
 
 clean-deps:
-> rm -rf deps/
-> echo "==BUILD== dependencies cleaned, run 'make init' to re-initialize dependencies"
+	rm -rf deps/
+	echo "==BUILD== dependencies cleaned, run 'make init' to re-initialize dependencies"
 .PHONY: clean-deps
