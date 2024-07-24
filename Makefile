@@ -7,7 +7,7 @@ MAKEFLAGS += --no-builtin-rules
 .SILENT:
 
 init: deps/.test-deps.sentinel
-	> echo "==BUILD== all dependencies up to date"
+	echo "==BUILD== all dependencies up to date"
 .PHONY: init
 
 test: deps/.test-deps.sentinel

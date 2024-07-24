@@ -13,15 +13,20 @@ This plugin creates the user command `RectifyBuffers`. Running `RectifyBuffers` 
 
 This plugin also creates the user command `RectifyBuffersDebug`, which will log out all buffers with the intended action that `RectifyBuffers` would take, along with debug information about each buffer.
 
+## Requirements
+
+- an internet connection to download test dependencies (only necessary if dependencies have changed or this is first-time setup)
+- a `make` installation. This project is built with GNU make v4; full compatibility with other versions of make (such as that shipped by Apple) is not guaranteed.
+
+> _Note: running with `make` is not strictly necessary. Reference the provided `Makefile` for typical development commands._
+
 ## Testing
 
 Run `make test` in the project's root directory. When this is run for the first time, it will initialize all dependencies needed for testing.
 
-To initialize dependencies (required for testing), run `make` in the project's root directory to initialize the `deps` directory.
+To initialize dependencies (required for testing), run `make init` in the project's root directory to initialize the `deps` directory.
 
 > Tests were built using [both the guidance and excellent framework provided by `mini.nvim`.](https://github.com/echasnovski/mini.nvim/blob/main/TESTING.md)
-
-> _Note: running with `make` is not strictly necessary. Reference the provided `Makefile` for typical development commands._
 
 ## Current project to-dos (in no particular order):
 
