@@ -33,3 +33,4 @@ To initialize dependencies (required for testing), run `make init` in the projec
 - Use this a bit to shake down bugs.
 - Evaluate whether the plugin should unconditionally reload/delete modified buffers like it currently does, or if it should have two commands: one which refuses to reload or delete any modified buffers, and one which will happily do it (the equivalent of passing a `--force` option to programs).
 - Add a help page for the plugin.
+- Add configuration to run arbitrary additional commands when rectify operation is run (for example, reloading LSPs)
