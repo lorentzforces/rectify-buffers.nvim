@@ -4,6 +4,61 @@ local ACTION_CLOSE = 'close'
 local ACTION_RELOAD = 'reload'
 local ACTION_NONE = 'none'
 
+function M.setup(opts)
+	opts = opts or {}
+	local config = vim.tbl_extend('force', new_default_config(), opts)
+
+	local user_func_type = type(config.user_function)
+	local is_valid_user_func =
+		user_func_type == 'nil'
+		or user_func_type == 'function'
+		or user_func_type == 'string'
+	assert(
+		is_valid_user_func,
+		string.format(
+			'in plugin setup: opts.user_function must be nil, a string representing a vim '
+				.. 'command, or a function, but it was %s instead',
+			user_function_type
+		)
+	)
+
+	if user_func_type == 'string' then
+		local cmd = config.user_function
+		assert(type(cmd) == 'string', 'cmd was not string')
+		config['user_function'] = function() vim.cmd(cmd) end
+	end
+
+	create_commands(config.user_function)
+end
+
+function new_default_config()
+	return {
+		user_function = nil
+	}
+end
+
+function create_commands(user_func)
+	vim.api.nvim_create_user_command(
+		"RectifyBuffers",
+		function()
+			M.rectify()
+			if user_func ~= nil then
+				user_func()
+			end
+		end,
+		{ desc = "Delete unused buffers and reload loaded ones" }
+	)
+
+	local VERBOSE = true
+	vim.api.nvim_create_user_command(
+		"RectifyBuffersDebug",
+		function()
+			M.classify_buffers(VERBOSE)
+		end,
+		{ desc = "Check what rectify-buffers would do with buffers" }
+	)
+end
+
 local NOT_VERBOSE = false
 function M.rectify()
 	local buffers = M.classify_buffers(NOT_VERBOSE)

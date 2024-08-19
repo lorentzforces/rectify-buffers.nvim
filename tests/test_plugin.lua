@@ -9,14 +9,15 @@ local T = new_set({
 		pre_case = function()
 			child.restart({ '-u', 'scripts/minimal_init.lua' })
 			child.lua([[M = require('rectify-buffers')]])
+			child.lua([[M.setup({})]])
 		end,
 		post_once = child.stop,
 	},
 })
 
-T['buffers'] = new_set()
+T['plugin'] = new_set()
 
-T['buffers']['current file buffer is reloaded'] = function()
+T['plugin']['current file buffer is reloaded'] = function()
 	child.cmd('edit tests/test_file.txt')
 
 	local bufs = classify_buffers()
@@ -25,7 +26,7 @@ T['buffers']['current file buffer is reloaded'] = function()
 	eq('reload', buf_info.action)
 end
 
-T['buffers']['file buffer with no file is untouched'] = function()
+T['plugin']['file buffer with no file is untouched'] = function()
 	child.cmd('edit tests/test_file.txt')
 	child.cmd('edit fake_file.txt')
 
@@ -35,7 +36,7 @@ T['buffers']['file buffer with no file is untouched'] = function()
 	eq('none', buf_info.action)
 end
 
-T['buffers']['buffer with no window is marked for closing'] = function()
+T['plugin']['buffer with no window is marked for closing'] = function()
 	child.cmd('edit tests/test_file.txt')
 	child.cmd('edit fake_file.txt')
 
@@ -45,7 +46,7 @@ T['buffers']['buffer with no window is marked for closing'] = function()
 	eq('close', buf_info.action)
 end
 
-T['buffers']['file buffer with changes is still reloaded'] = function()
+T['plugin']['file buffer with changes is still reloaded'] = function()
 	child.cmd('edit tests/test_file.txt')
 	child.cmd('%s/lark/jabberwock')
 
@@ -55,7 +56,7 @@ T['buffers']['file buffer with changes is still reloaded'] = function()
 	eq('reload', buf_info.action)
 end
 
-T['buffers']['buffer types which should never be operated on are untouched'] = function()
+T['plugin']['buffer types which should never be operated on are untouched'] = function()
 	child.cmd('help testing.txt')
 
 	local bufs = classify_buffers()
@@ -67,6 +68,35 @@ T['buffers']['buffer types which should never be operated on are untouched'] = f
 	bufs = classify_buffers()
 	buf_info = expect_buffer_type(bufs, 'terminal')
 	eq('none', buf_info.action)
+end
+
+T['plugin']['a user function of an invalid type throws an error when calling setup'] = function()
+	local success = pcall(function()
+		child.lua_get([[M.setup({user_function = 2})]])
+	end)
+
+	if success then
+		error(
+			'expected an error when running setup() with a user_function value set to an '
+				.. 'integer, but it succeeded'
+		)
+	end
+end
+
+T['plugin']['a vim cmd user function runs when RectifyBuffers is called'] = function()
+	child.lua_get([[M.setup({ user_function = 'let g:test_var = "foo"'} )]])
+	child.cmd('RectifyBuffers')
+	local test_var_value = child.lua_get([[vim.g.test_var]])
+
+	eq('foo', test_var_value)
+end
+
+T['plugin']['a lua user function runs when RectifyBuffers is called'] = function()
+	child.lua_get([[M.setup({user_function = function() vim.g.test_var = 'foo' end})]])
+	child.cmd('RectifyBuffers')
+	local test_var_value = child.lua_get([[vim.g.test_var]])
+
+	eq('foo', test_var_value)
 end
 
 function classify_buffers()
