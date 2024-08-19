@@ -29,10 +29,11 @@ The `setup` function accepts a single parameter, which can be `nil`, or a table 
 local rectify_buffers = require('rectify-buffers')
 rectify_buffers.setup({
 
-    -- A user-defined function to be run after buffers are refreshed when `RectifyBuffers` is
-    -- invoked, e.g. reloading an LSP. This function will receive no arguments.
-    -- `user_function` may also be a string, in which case it is interpreted as a vimscript command
-    -- to be run via vim.cmd
+    -- A user-defined function to be run after buffers are refreshed when
+    -- `RectifyBuffers` is invoked, e.g. reloading an LSP. This function will
+    -- receive no arguments.
+    -- `user_function` may also be a string, in which case it is interpreted as
+    -- a vimscript command to be run via vim.cmd
     --
     -- Examples:
     --   user_function = function() assert(true, 'great!') end,
