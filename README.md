@@ -61,5 +61,5 @@ To initialize dependencies (required for testing), run `make init` in the projec
 ## Current project to-dos (in no particular order):
 
 - Use this a bit to shake down bugs.
-- Evaluate whether the plugin should unconditionally reload/delete modified buffers like it currently does, or if it should have two commands: one which refuses to reload or delete any modified buffers, and one which will happily do it (the equivalent of passing a `--force` option to programs).
+- Evaluate whether the plugin should unconditionally reload/delete modified buffers like it currently does not, or if it should have two commands: one which refuses to reload or delete any modified buffers, and one which will happily do it (the equivalent of passing a `--force` option to programs).
 - Add a help page for the plugin.
