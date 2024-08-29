@@ -63,12 +63,12 @@ local NOT_VERBOSE = false
 function M.rectify()
 	local buffers = M.classify_buffers(NOT_VERBOSE)
 	for _, buffer_info in pairs(buffers) do
+		-- TODO: eventually provide some kind of user confirmation to reload or delete buffers that
+		-- DO have changes
 		if buffer_info.action == ACTION_CLOSE then
 			vim.api.nvim_buf_delete(buffer_info.id, {})
 		elseif buffer_info.action == ACTION_RELOAD then
-			-- TODO: eventually provide some kind of user confirmation to reload buffers like this that DO
-			-- have changes
-			vim.api.nvim_buf_call(buffer_info.id, function() vim.cmd('edit!') end)
+			vim.api.nvim_buf_call(buffer_info.id, function() vim.cmd('edit') end)
 		end
 	end
 end
