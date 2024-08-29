@@ -19,6 +19,8 @@ require('rectify-buffers').setup()
 
 This plugin creates the user command `RectifyBuffers`. Running `RectifyBuffers` will _delete_ any file-based buffers which are associated with a file which exists on disk, and _are not_ currently associated with a window. It will _reload_ any file-based buffers which are associated with a file which exists on disk, and which _are_ currently associated with a window (discarding any local changes in the buffer). Buffers which are not associated with an existing file on disk, or which are other "ephemeral" buffer types (like terminals and help) will be untouched.
 
+Buffers which are modified will halt the process and ask confirmation.
+
 This plugin also creates the user command `RectifyBuffersDebug`, which will log out all buffers with the intended action that `RectifyBuffers` would take, along with debug information about each buffer.
 
 ### Configuration

@@ -82,10 +82,7 @@ function M.classify_buffers(verbose_logging)
 		local window_count = #vim.fn.win_findbuf(buf)
 		-- see: https://neovim.io/doc/user/options.html#'buftype'
 		local buffer_type = vim.api.nvim_get_option_value('buftype', { buf = buf })
-
-		-- TODO: maybe take modified state into account?
-		-- see: https://neovim.io/doc/user/options.html#'modified'
-		-- local modified = vim.api.nvim_get_option_value('modified', { buf = buf })
+		local modified = vim.api.nvim_get_option_value('modified', {buf = buf})
 
 		local action = ACTION_NONE
 
@@ -106,8 +103,8 @@ function M.classify_buffers(verbose_logging)
 
 		if verbose_logging then
 			log(string.format(
-				'[%s] \'%s\' -- action:%s type:%s has_file:%s listed:%s window_count%s',
-				buf, name, action, buffer_type, has_file, listed, window_count
+				'[%s] \'%s\' -- action:%s type:%s has_file:%s listed:%s window_count%s modified:%s',
+				buf, name, action, buffer_type, has_file, listed, window_count, modified
 			))
 		end
 
@@ -116,6 +113,7 @@ function M.classify_buffers(verbose_logging)
 		buffer_info.name = name
 		buffer_info.type = buffer_type
 		buffer_info.action = action
+		buffer_info.modified = modified
 		table.insert(buffers, buffer_info)
 	end
 
