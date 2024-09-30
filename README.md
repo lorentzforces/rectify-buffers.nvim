@@ -48,7 +48,7 @@ rectify_buffers.setup({
 ## Requirements
 
 - an internet connection to download test dependencies (only necessary if dependencies have changed or this is first-time setup)
-- a `make` installation. This project is built with GNU make v4; full compatibility with other versions of make (such as that shipped by Apple) is not guaranteed.
+- a `make` installation. This project is built with GNU make v4; full compatibility with other versions of make (such as that shipped by Apple) is not guaranteed, but it _should_ be broadly compatible.
 
 > _Note: running with `make` is not strictly necessary. Reference the provided `Makefile` for typical development commands._
 
