@@ -40,6 +40,11 @@ rectify_buffers.setup({
     -- Examples:
     --   user_function = function() assert(true, 'great!') end,
     --   user_function = 'let g:rectified = "true"',
+    --   user_function = function()
+    --     for _, client in pairs(vim.lsp.get_clients()) do
+    --       vim.api.nvim_command('lsp restart ' .. client.name)
+    --     end
+    --   end,
     user_function = nil,
 
 })
