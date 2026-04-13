@@ -1,10 +1,41 @@
-local new_set = MiniTest.new_set
-local expect, eq = MiniTest.expect, MiniTest.expect.equality
+local eq = MiniTest.expect.equality
 
 -- Create (but not start) child Neovim object
 local child = MiniTest.new_child_neovim()
 
-local T = new_set({
+local classify_buffers = function()
+	return child.lua_get([[M.classify_buffers(false)]])
+end
+
+local expect_buffer_match_name = function(buffers, name)
+	local name_length = #name -- this had better be a string
+	for _, buffer_info in pairs(buffers) do
+		local plain_search = true
+		local matches = string.find(buffer_info.name, name, -name_length, plain_search)
+
+		if matches ~= nil then
+			return buffer_info
+		end
+	end
+	error(string.format(
+		'expected buffer_info matching buffer name "%s" in buffer list, but could not find one',
+		name
+	))
+end
+
+local expect_buffer_type = function(buffers, type)
+	for _, buffer_info in pairs(buffers) do
+		if buffer_info.type == type then
+			return buffer_info
+		end
+	end
+	error(string.format(
+		'expected buffer_info matching buffer type "%s" in buffer list, but could not find one',
+		type
+	))
+end
+
+local T = MiniTest.new_set({
 	hooks = {
 		pre_case = function()
 			child.restart({ '-u', 'scripts/minimal_init.lua' })
@@ -15,7 +46,7 @@ local T = new_set({
 	},
 })
 
-T['plugin'] = new_set()
+T['plugin'] = MiniTest.new_set()
 
 T['plugin']['current file buffer is reloaded'] = function()
 	child.cmd('edit tests/test_file.txt')
@@ -57,7 +88,7 @@ T['plugin']['file buffer with changes is still reloaded'] = function()
 end
 
 T['plugin']['buffer types which should never be operated on are untouched'] = function()
-	child.cmd('help testing.txt')
+	child.cmd('help uganda')
 
 	local bufs = classify_buffers()
 
@@ -97,38 +128,6 @@ T['plugin']['a lua user function runs when RectifyBuffers is called'] = function
 	local test_var_value = child.lua_get([[vim.g.test_var]])
 
 	eq('foo', test_var_value)
-end
-
-function classify_buffers()
-	return child.lua_get([[M.classify_buffers(false)]])
-end
-
-function expect_buffer_match_name(buffers, name)
-	local name_length = #name -- this had better be a string
-	for _, buffer_info in pairs(buffers) do
-		local plain_search = true
-		local matches = string.find(buffer_info.name, name, -name_length, plain_search)
-
-		if matches ~= nil then
-			return buffer_info
-		end
-	end
-	error(string.format(
-		'expected buffer_info matching buffer name "%s" in buffer list, but could not find one',
-		name
-	))
-end
-
-function expect_buffer_type(buffers, type)
-	for _, buffer_info in pairs(buffers) do
-		if buffer_info.type == type then
-			return buffer_info
-		end
-	end
-	error(string.format(
-		'expected buffer_info matching buffer type "%s" in buffer list, but could not find one',
-		type
-	))
 end
 
 return T

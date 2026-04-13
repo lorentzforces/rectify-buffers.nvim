@@ -4,40 +4,13 @@ local ACTION_CLOSE = 'close'
 local ACTION_RELOAD = 'reload'
 local ACTION_NONE = 'none'
 
-function M.setup(opts)
-	opts = opts or {}
-	local config = vim.tbl_extend('force', new_default_config(), opts)
-
-	local user_func_type = type(config.user_function)
-	local is_valid_user_func =
-		user_func_type == 'nil'
-		or user_func_type == 'function'
-		or user_func_type == 'string'
-	assert(
-		is_valid_user_func,
-		string.format(
-			'in plugin setup: opts.user_function must be nil, a string representing a vim '
-				.. 'command, or a function, but it was %s instead',
-			user_function_type
-		)
-	)
-
-	if user_func_type == 'string' then
-		local cmd = config.user_function
-		assert(type(cmd) == 'string', 'cmd was not string')
-		config['user_function'] = function() vim.cmd(cmd) end
-	end
-
-	create_commands(config.user_function)
-end
-
-function new_default_config()
+local new_default_config = function()
 	return {
 		user_function = nil
 	}
 end
 
-function create_commands(user_func)
+local create_commands = function(user_func)
 	vim.api.nvim_create_user_command(
 		"RectifyBuffers",
 		function()
@@ -59,6 +32,69 @@ function create_commands(user_func)
 	)
 end
 
+function M.setup(opts)
+	opts = opts or {}
+	local config = vim.tbl_extend('force', new_default_config(), opts)
+
+	local user_func_type = type(config.user_function)
+	local is_valid_user_func =
+		user_func_type == 'nil'
+		or user_func_type == 'function'
+		or user_func_type == 'string'
+	assert(
+		is_valid_user_func,
+		string.format(
+			'in plugin setup: opts.user_function must be nil, a string representing a vim '
+				.. 'command, or a function, but it was %s instead',
+			user_func_type
+		)
+	)
+
+	if user_func_type == 'string' then
+		local cmd = config.user_function
+		assert(type(cmd) == 'string', 'cmd was not string')
+		config['user_function'] = function() vim.cmd(cmd) end
+	end
+
+	create_commands(config.user_function)
+end
+
+local buffer_has_file = function(buf_handle)
+	local name = vim.api.nvim_buf_get_name(buf_handle)
+	local file = io.open(name, 'r')
+	if file then
+		file.close(file)
+		return true
+	end
+	return false
+end
+
+local set_collection = function(list)
+	local set = {}
+	for _, val in ipairs(list) do
+		set[val] = true
+	end
+	return set
+end
+
+local bufferSkipType = set_collection({
+	'help',
+	'prompt',
+	'quickfix',
+	'terminal',
+})
+
+local should_ignore_buffer_type = function(buf_type)
+	if bufferSkipType[buf_type] then
+		return true
+	end
+	return false
+end
+
+local log = function(str)
+	vim.cmd(string.format('echo "%s"', str))
+end
+
 local NOT_VERBOSE = false
 function M.rectify()
 	local buffers = M.classify_buffers(NOT_VERBOSE)
@@ -78,7 +114,8 @@ function M.classify_buffers(verbose_logging)
 	for _, buf in pairs(vim.api.nvim_list_bufs()) do
 		local name = vim.api.nvim_buf_get_name(buf)
 		local has_file = buffer_has_file(buf)
-		local listed = vim.api.nvim_buf_get_option(buf, 'buflisted')
+		-- local listed = vim.api.nvim_buf_get_option(buf, 'buflisted')
+		local listed = vim.api.nvim_get_option_value('buflisted', { scope = 'local', buf = buf })
 		local window_count = #vim.fn.win_findbuf(buf)
 		-- see: https://neovim.io/doc/user/options.html#'buftype'
 		local buffer_type = vim.api.nvim_get_option_value('buftype', { buf = buf })
@@ -118,42 +155,6 @@ function M.classify_buffers(verbose_logging)
 	end
 
 	return buffers
-end
-
-function buffer_has_file(buf_handle)
-	local name = vim.api.nvim_buf_get_name(buf_handle)
-	local file = io.open(name, 'r')
-	if file then
-		file.close(file)
-		return true
-	end
-	return false
-end
-
-function log(str)
-	vim.cmd(string.format('echo "%s"', str))
-end
-
-function set(list)
-	local set = {}
-	for _, val in ipairs(list) do
-		set[val] = true
-	end
-	return set
-end
-
-local bufferSkipType = set({
-	'help',
-	'prompt',
-	'quickfix',
-	'terminal',
-})
-
-function should_ignore_buffer_type(buf_type)
-	if bufferSkipType[buf_type] then
-		return true
-	end
-	return false
 end
 
 return M
